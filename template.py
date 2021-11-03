@@ -1,15 +1,24 @@
 import plumbum
 import os
 from pathlib import Path
+from jinja2 import Template
+import datetime
 
 def mkdir(path, makedir=True):
     if makedir:
         os.mkdir(path)
     return str(path.stem)
 
-def bang(t):
+def read_file(fname: str) -> str:
+    file = open(fname, 'r')
+    res = file.read()
+    file.close()
+    return res
+
+def bang(t, fp):
     project_name    = input('New Project Name: ')
     alias           = input('Alias: ')
+    license         = input('Project License [MIT, GPLv3]: ')
     author          = input('Full Name of Project Author: ')
     username        = input('Username: ')
     email           = input('Email of Project Author: ')
@@ -49,9 +58,34 @@ def bang(t):
 
     (plumbum.cmd.echo[t.render(
         project_name=project_name,
+        license=license,
         alias=alias,
         author=author,
         email=email,
         desc=desc,
         username=username,
         cli=cli)] > setup)()
+
+    # Create License file
+
+    # Initialize template
+    trepo = Path(fp).parents[0]
+    lt = Template(read_file(str(trepo / 'LICENSE')))
+
+    # Get output path
+    license_path = str(path / 'LICENSE')
+
+    # year = datetime.date().today().year
+    # now = datetime.date().now()
+
+    # Get necessary variables
+    now = datetime.date.today()
+    year = now.year
+    print(year)
+
+
+    (plumbum.cmd.echo[lt.render(
+        license=license,
+        year=year,
+        author=author
+    )] > license_path)()

@@ -15,7 +15,13 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/{{- username -}}/{{- project_name -}}/issues",
     },
+    {% if license == 'MIT' %}
     license='MIT',
+    {% elif license == 'GPLv3' %}
+    license='GPLv3',
+    {% else %}
+    license=license,
+    {% endif%}
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     python_requires=">=3.6",

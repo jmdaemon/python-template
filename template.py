@@ -66,26 +66,13 @@ def bang(t, fp):
         username=username,
         cli=cli)] > setup)()
 
-    # Create License file
-
-    # Initialize template
-    trepo = Path(fp).parents[0]
-    lt = Template(read_file(str(trepo / 'LICENSE')))
-
-    # Get output path
-    license_path = str(path / 'LICENSE')
-
-    # year = datetime.date().today().year
-    # now = datetime.date().now()
-
-    # Get necessary variables
-    now = datetime.date.today()
-    year = now.year
-    print(year)
-
+    # Create License
+    lt = Template(read_file(str(Path(fp).parents[0] / 'LICENSE')))
+    lout = str(path / 'LICENSE')
+    year = datetime.date.today().year
 
     (plumbum.cmd.echo[lt.render(
         license=license,
         year=year,
         author=author
-    )] > license_path)()
+    )] > lout)()

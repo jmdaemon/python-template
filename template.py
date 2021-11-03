@@ -36,6 +36,14 @@ def bang(t):
     # Create git repository
     os.system(f'git init {path}')
 
+    # Create README.md
+    readme = path / 'README.md'
+    os.system(f'touch {readme}')
+
+    # Make directories
+    Path('src').mkdir(parents=True, exist_ok=True)
+    Path('tests').mkdir(parents=True, exist_ok=True)
+
     # Create initial setup.py
     setup = str(path / 'setup.py')
 

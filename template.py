@@ -32,7 +32,13 @@ def bang(t):
     else:
         print('Project Name must be a valid name, or directory path')
         return -1
+
+    # Create git repository
+    os.system(f'git init {path}')
+
+    # Create initial setup.py
     setup = str(path / 'setup.py')
+
     (plumbum.cmd.echo[t.render(
         project_name=project_name,
         alias=alias,

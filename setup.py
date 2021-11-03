@@ -20,15 +20,15 @@ setup(
     packages=find_packages(where="src"),
     python_requires=">=3.6",
     py_modules=[],
-    {% - if cli == 'Click' - %}
+    {% if cli == 'Click' %}
     install_requires=[
         'Click',
     ],
-    {% - elif cli == 'argparse' - %}
+    {% elif cli == 'argparse' %}
     install_requires=[
         'argparse',
     ],
-    {% - else - %}
-    {% - endif - %}
+    {% else %}
+    {% endif %}
     test_suite='tests',
 )

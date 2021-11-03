@@ -5,7 +5,6 @@ from pathlib import Path
 def mkdir(path, makedir=True):
     if makedir:
         os.mkdir(path)
-    # path_dir = path
     return(path, str(path.stem))
 
 def bang(t):
@@ -22,31 +21,15 @@ def bang(t):
 
     path = path.expanduser()
     path_dir = ''
-    print(path)
     if (path.is_dir()):
         if (not path.exists()):
             path_dir, project_name = mkdir(path)
-            print(path_dir)
-            print(project_name)
-
-            # project_name = path.name
         else:
             path_dir, project_name = mkdir(path, makedir=False)
     elif (not path.exists()):
         path_dir, project_name = mkdir(path)
-        print(path_dir)
-        print(project_name)
-        # os.mkdir(path)
-        # path_dir = path
-        # project_name = str(path.stem)
-        # project_name = path.name
     elif (path.exists()):
         path_dir, project_name = mkdir(path, makedir=False)
-        print(path_dir)
-        print(project_name)
-        # path_dir = path
-        # project_name = str(path.stem)
-        # project_name = path.name
     else:
         print('Project Name must be a valid name, or directory path')
         return -1

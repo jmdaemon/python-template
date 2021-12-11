@@ -1,5 +1,6 @@
 import plumbum
 import os
+from wora.file import read_file
 from pathlib import Path
 from jinja2 import Template
 import datetime
@@ -8,12 +9,6 @@ def mkdir(path, makedir=True):
     if makedir:
         os.mkdir(path)
     return str(path.stem)
-
-def read_file(fname: str) -> str:
-    file = open(fname, 'r')
-    res = file.read()
-    file.close()
-    return res
 
 def bang(fp):
     project_name    = input('New Project Name: ')

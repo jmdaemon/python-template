@@ -38,10 +38,6 @@ def bang(fp):
     # Create git repository
     os.system(f'git init {path}')
 
-    # Create README.md
-    readme = path / 'README.md'
-    os.system(f'touch {readme}')
-
     # Make directories
     Path('src').mkdir(parents=True, exist_ok=True)
     Path('tests').mkdir(parents=True, exist_ok=True)
@@ -70,3 +66,16 @@ def bang(fp):
         year=year,
         author=author
     )] > lout)()
+
+    # Create README.md
+    rt = Template(read_file(str(Path(fp) / 'README.md.tmpl')))
+    readme = str(path / 'README.md')
+
+    (plumbum.cmd.echo[rt.render(
+        project_name_caps=project_name.upper(),
+        desc=desc,
+        project_name=project_name,
+        pkgmgr='pip',
+        build_sys='',
+        config_sys=''
+    )] > readme)()

@@ -1,0 +1,113 @@
+# {{ project_name_caps }}
+
+{{ desc }}
+
+## Installation
+
+Use the package manager [{{- pkgmgr -}}](https://pip.pypa.io/en/stable/) to install {{ project_name }}.
+
+{%- if build_sys == '' %}
+``` bash
+{% if pkgmgr == 'pip' %}
+{{- pkgmgr }} install {{ project_name }}
+```
+{% elif pkgmgr == 'apt' %}
+sudo {{- pkgmgr }} install {{ project_name }} -y
+```
+{% elif pkgmgr == 'pacman' %}
+sudo {{- pkgmgr }} -S {{ project_name }}
+```
+{%- endif %}
+{% if build_sys != '' and config_sys != ''%}
+### Building
+
+{%- if build_sys == 'autotools' -%}
+Create a build directory and enter it:
+
+```bash
+mkdir build && cd build
+```
+
+Check dependencies and configure build system:
+
+``` bash
+../configure
+```
+
+Build {{ project_name }} and install :
+
+{% if build_sys == 'make' %}
+``` bash
+make
+make install
+```
+{% elif build_sys == 'ninja' %}
+```
+ninja -C build -j$(nproc)
+cd build && ninja install
+```
+{% endif %}
+
+The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
+{%- elif build_sys == 'cmake' -%}
+``` bash
+
+Configure the build system
+cmake -B build -S . \
+        -DCMAKE_BUILD_TYPE='None' \
+        -DCMAKE_INSTALL_PREFIX='/usr' \
+        -Wno-dev
+```
+
+Make and install
+{% if build_sys == 'make' %}
+```
+make -C build -j$(nproc)
+sudo make install
+```
+{% elif build_sys == 'ninja' %}
+```
+ninja -C build -j$(nproc)
+cd build && ninja install
+```
+{% endif %}
+{%- elif build_sys == 'meson' -%}
+Configure the build system
+```
+meson setup build
+```
+Make and install
+{% if build_sys == 'make' %}
+```
+make -C build -j$(nproc)
+sudo make install
+```
+{% elif build_sys == 'ninja' %}
+```
+ninja -C build -j$(nproc)
+cd build && ninja install
+```
+{% endif %}
+{%- elif build_sys == 'make' and config_sys == '' -%}
+``` bash
+./configure
+make
+make install
+```
+{%- elif build_sys == 'ninja' and config_sys == '' -%}
+```
+ninja -C build -j$(nproc)
+cd build && ninja install
+```
+{%- endif -%}
+{%- endif -%}
+{%- endif -%}
+
+## Usage
+
+Placeholder
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.

@@ -15,7 +15,7 @@ def read_file(fname: str) -> str:
     file.close()
     return res
 
-def bang(t, fp):
+def bang(fp):
     project_name    = input('New Project Name: ')
     alias           = input('Alias: ')
     license         = input('Project License [MIT, GPLv3]: ')
@@ -25,9 +25,7 @@ def bang(t, fp):
     desc            = input('Project description: ')
     cli             = input('Use a CLI library? [Click, argparse]: ')
 
-    # Always treat the project name as a directory
-    path = Path(project_name)
-    path = path.expanduser() # Expands ~
+    path = Path(project_name).expanduser()
 
     if (path.is_dir()):
         if (not path.exists()):
@@ -55,6 +53,7 @@ def bang(t, fp):
 
     # Create initial setup.py
     setup = str(path / 'setup.py')
+    t = Template(read_file(f'{fp}/setup.py'))
 
     (plumbum.cmd.echo[t.render(
         project_name=project_name,
@@ -67,7 +66,7 @@ def bang(t, fp):
         cli=cli)] > setup)()
 
     # Create License
-    lt = Template(read_file(str(Path(fp).parents[0] / 'LICENSE')))
+    lt = Template(read_file(str(Path(fp) / 'LICENSE')))
     lout = str(path / 'LICENSE')
     year = datetime.date.today().year
 

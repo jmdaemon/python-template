@@ -10,6 +10,17 @@ def mkdir(path, makedir=True):
         os.mkdir(path)
     return str(path.stem)
 
+# def render(fp, tmpl_name, *args):
+def render(src, tmpl_name, vardict):
+    tmpl = Template(read_file(str(Path(src) / tmpl_name)))
+    # out = tmpl.render(*[arg for arg in args])
+    res = tmpl.render(vardict)
+    return res
+
+def output(dest, tmpl_name, tmpl):
+    dest = str(dest / tmpl_name)
+    (plumbum.cmd.echo[tmpl] > dest)()
+
 def bang(fp):
     project_name    = input('New Project Name: ')
     alias           = input('Alias: ')
@@ -36,49 +47,47 @@ def bang(fp):
         return -1
 
     # Ensure the templates render before outputting to dest
+
     # Init setup.py template
-    setup = str(path / 'setup.py')
-    t = Template(read_file(f'{fp}/setup.py'))
-    setup_out = plumbum.cmd.echo[t.render(
-        project_name=project_name,
-        license=license,
-        alias=alias,
-        author=author,
-        email=email,
-        desc=desc,
-        username=username,
-        cli=cli)]
+    setupdict = {
+        'project_name': project_name,
+        'license': license,
+        'alias': alias,
+        'author': author,
+        'email': email,
+        'desc': desc,
+        'username': username,
+        'cli': cli
+    }
+    setup_out = render(fp, 'setup.py', setupdict)
 
     # Init License template
-    lt = Template(read_file(str(Path(fp) / 'LICENSE')))
-    lout = str(path / 'LICENSE')
-    year = datetime.date.today().year
-    license_out = plumbum.cmd.echo[lt.render(
-        license=license,
-        year=year,
-        author=author
-    )]
+    licensedict = {
+        'license': license,
+        'year': datetime.date.today().year,
+        'author': author
+    }
+    license_out = render(fp, 'LICENSE', licensedict)
 
     # Init README.md template
-    rt = Template(read_file(str(Path(fp) / 'README.md.tmpl')))
-    readme = str(path / 'README.md')
-    readme_out = plumbum.cmd.echo[rt.render(
-        project_name_caps=project_name.upper(),
-        desc=desc,
-        project_name=project_name,
-        pkgmgr='pip',
-        build_sys='',
-        config_sys=''
-    )]
+    readmedict = {
+        'project_name_caps': project_name.upper(),
+        'desc': desc,
+        'project_name': project_name,
+        'pkgmgr': 'pip',
+        'build_sys': '',
+        'config_sys': ''
+    }
+    readme_out = render(fp, 'README.md.tmpl', readmedict)
 
     # Make directories
     Path('src').mkdir(parents=True, exist_ok=True)
     Path('tests').mkdir(parents=True, exist_ok=True)
 
-    # Create git repository
+    # Init git repo
     os.system(f'git init {path}')
 
     # Output all files
-    (setup_out > setup)()
-    (license_out > lout)()
-    (readme_out > readme)()
+    output(path, 'setup.py', setup_out)
+    output(path, 'LICENSE', license_out)
+    output(path, 'README.md', readme_out)

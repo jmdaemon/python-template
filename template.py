@@ -10,10 +10,8 @@ def mkdir(path, makedir=True):
         os.mkdir(path)
     return str(path.stem)
 
-# def render(fp, tmpl_name, *args):
 def render(src, tmpl_name, vardict):
     tmpl = Template(read_file(str(Path(src) / tmpl_name)))
-    # out = tmpl.render(*[arg for arg in args])
     res = tmpl.render(vardict)
     return res
 
@@ -47,8 +45,6 @@ def bang(fp):
         return -1
 
     # Ensure the templates render before outputting to dest
-
-    # Init setup.py template
     setupdict = {
         'project_name': project_name,
         'license': license,
@@ -59,17 +55,11 @@ def bang(fp):
         'username': username,
         'cli': cli
     }
-    setup_out = render(fp, 'setup.py', setupdict)
-
-    # Init License template
     licensedict = {
         'license': license,
         'year': datetime.date.today().year,
         'author': author
     }
-    license_out = render(fp, 'LICENSE', licensedict)
-
-    # Init README.md template
     readmedict = {
         'project_name_caps': project_name.upper(),
         'desc': desc,
@@ -78,7 +68,17 @@ def bang(fp):
         'build_sys': '',
         'config_sys': ''
     }
-    readme_out = render(fp, 'README.md.tmpl', readmedict)
+
+    tmpls = {
+        'setup.py': setupdict,
+        'LICENSE': licensedict,
+        'README.md.tmpl': readmedict,
+    }
+
+    # Initialize all templates
+    outputs = {}
+    for name, vardict in tmpls.items():
+        outputs[name.removesuffix(".tmpl")] = (render(fp, name, vardict))
 
     # Make directories
     Path('src').mkdir(parents=True, exist_ok=True)
@@ -88,6 +88,5 @@ def bang(fp):
     os.system(f'git init {path}')
 
     # Output all files
-    output(path, 'setup.py', setup_out)
-    output(path, 'LICENSE', license_out)
-    output(path, 'README.md', readme_out)
+    for name, out in outputs.items():
+        output(path, name, out)

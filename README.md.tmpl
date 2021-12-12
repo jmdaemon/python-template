@@ -37,9 +37,7 @@ Check dependencies and configure build system:
 
 Build {{ project_name }} and install :
 
-{% block build %}
 {{ super() }}
-{% endblock %}
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 {%- elif build_sys == 'cmake' -%}

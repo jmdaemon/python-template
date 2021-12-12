@@ -20,29 +20,23 @@ def output(dest, tmpl_name, tmpl):
     (plumbum.cmd.echo[tmpl] > dest)()
 
 def bang(fp):
-    project_name    = input('New Project Name: ')
-    alias           = input('Alias: ')
-    license         = input('Project License [MIT, GPLv3]: ')
-    author          = input('Full Name of Project Author: ')
-    username        = input('Username: ')
-    email           = input('Email of Project Author: ')
-    desc            = input('Project description: ')
-    cli             = input('Use a CLI library? [Click, argparse]: ')
+    project_name    = input('What is your new project name?         : ')
+    alias           = input('What is your alias?                    : ')
+    license         = input('Choose a License [MIT, GPLv3]          : ')
+    author          = input('What is your full name?                : ')
+    username        = input('What is your Git username?             : ')
+    email           = input('What is your Git email?                : ')
+    desc            = input('Briefly describe your project          : ')
+    cli             = input('Use a CLI library? [Click, argparse]   : ')
 
-    path = Path(project_name).expanduser()
-
-    if (path.is_dir()):
-        if (not path.exists()):
-            project_name = mkdir(path)
-        else:
-            project_name = mkdir(path, makedir=False)
-    elif (not path.exists()):
+    path = Path(project_name).resolve()
+    if (not path.exists()): # If dest doesn't exist
         project_name = mkdir(path)
-    elif (path.exists()):
+    elif (len([path.iterdir()]) != 0): # If dest is not empty
+        overwrite = input((f'{path} is not empty. Overwrite? [y/n]: '))
+        if (overwrite.lower() == 'n' or overwrite.lower() == 'no'):
+            return 0
         project_name = mkdir(path, makedir=False)
-    else:
-        print('Project Name must be a valid name, or directory path')
-        return -1
 
     # Ensure the templates render before outputting to dest
     setupdict = {
@@ -80,7 +74,7 @@ def bang(fp):
     for name, vardict in tmpls.items():
         outputs[name.removesuffix(".tmpl")] = (render(fp, name, vardict))
 
-    # Make directories
+    # Make dest directories
     Path('src').mkdir(parents=True, exist_ok=True)
     Path('tests').mkdir(parents=True, exist_ok=True)
 

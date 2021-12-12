@@ -1,0 +1,14 @@
+{% block build %}
+{% if build_sys == 'make' %}
+``` bash
+make
+make install
+```
+{% elif build_sys == 'ninja' %}
+```
+ninja -C build -j$(nproc)
+cd build && ninja install
+```
+{% endif %}
+{% endblock %}
+

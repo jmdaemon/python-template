@@ -21,6 +21,7 @@ sudo {{- pkgmgr }} -S {{ project_name }}
 {% if build_sys != '' and config_sys != ''%}
 ### Building
 
+{% extends "build.sys.tmpl" %}
 {%- if build_sys == 'autotools' -%}
 Create a build directory and enter it:
 
@@ -36,17 +37,9 @@ Check dependencies and configure build system:
 
 Build {{ project_name }} and install :
 
-{% if build_sys == 'make' %}
-``` bash
-make
-make install
-```
-{% elif build_sys == 'ninja' %}
-```
-ninja -C build -j$(nproc)
-cd build && ninja install
-```
-{% endif %}
+{% block build %}
+{{ super() }}
+{% endblock %}
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 {%- elif build_sys == 'cmake' -%}
@@ -60,34 +53,14 @@ cmake -B build -S . \
 ```
 
 Make and install
-{% if build_sys == 'make' %}
-```
-make -C build -j$(nproc)
-sudo make install
-```
-{% elif build_sys == 'ninja' %}
-```
-ninja -C build -j$(nproc)
-cd build && ninja install
-```
-{% endif %}
+{{ super() }}
 {%- elif build_sys == 'meson' -%}
 Configure the build system
 ```
 meson setup build
 ```
 Make and install
-{% if build_sys == 'make' %}
-```
-make -C build -j$(nproc)
-sudo make install
-```
-{% elif build_sys == 'ninja' %}
-```
-ninja -C build -j$(nproc)
-cd build && ninja install
-```
-{% endif %}
+{{ super() }}
 {%- elif build_sys == 'make' and config_sys == '' -%}
 ``` bash
 ./configure

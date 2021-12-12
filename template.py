@@ -35,18 +35,11 @@ def bang(fp):
         print('Project Name must be a valid name, or directory path')
         return -1
 
-    # Create git repository
-    os.system(f'git init {path}')
-
-    # Make directories
-    Path('src').mkdir(parents=True, exist_ok=True)
-    Path('tests').mkdir(parents=True, exist_ok=True)
-
-    # Create initial setup.py
+    # Ensure the templates render before outputting to dest
+    # Init setup.py template
     setup = str(path / 'setup.py')
     t = Template(read_file(f'{fp}/setup.py'))
-
-    (plumbum.cmd.echo[t.render(
+    setup_out = plumbum.cmd.echo[t.render(
         project_name=project_name,
         license=license,
         alias=alias,
@@ -54,28 +47,38 @@ def bang(fp):
         email=email,
         desc=desc,
         username=username,
-        cli=cli)] > setup)()
+        cli=cli)]
 
-    # Create License
+    # Init License template
     lt = Template(read_file(str(Path(fp) / 'LICENSE')))
     lout = str(path / 'LICENSE')
     year = datetime.date.today().year
-
-    (plumbum.cmd.echo[lt.render(
+    license_out = plumbum.cmd.echo[lt.render(
         license=license,
         year=year,
         author=author
-    )] > lout)()
+    )]
 
-    # Create README.md
+    # Init README.md template
     rt = Template(read_file(str(Path(fp) / 'README.md.tmpl')))
     readme = str(path / 'README.md')
-
-    (plumbum.cmd.echo[rt.render(
+    readme_out = plumbum.cmd.echo[rt.render(
         project_name_caps=project_name.upper(),
         desc=desc,
         project_name=project_name,
         pkgmgr='pip',
         build_sys='',
         config_sys=''
-    )] > readme)()
+    )]
+
+    # Make directories
+    Path('src').mkdir(parents=True, exist_ok=True)
+    Path('tests').mkdir(parents=True, exist_ok=True)
+
+    # Create git repository
+    os.system(f'git init {path}')
+
+    # Output all files
+    (setup_out > setup)()
+    (license_out > lout)()
+    (readme_out > readme)()

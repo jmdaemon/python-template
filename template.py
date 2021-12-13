@@ -23,26 +23,23 @@ def output(dest, tmpl_name, tmpl):
     dest = str(dest / tmpl_name)
     (plumbum.cmd.echo[tmpl] > dest)()
 
+def promptf(prompt: str, val=''):
+    return input(prompt.format(val)) or val
+
 def bang(fp):
-    # cfg = Path("~/.config/bang/templates/python.toml")
     host            = input('Where will you host [GitHub or GitLab]? [GitHub] : ') or "GitHub"
-    # loadcfg = lambda cfp : toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
-    def loadcfg(cfp):
-        # return toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
-        print(cfp)
-        print(BANG_CONFIG_DIR)
-        return toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
-    # gitcfg          = Path(BANG_CONFIG_DIR / 'github.toml')[""] if host == "GitHub" else Path(BANG_CONFIG_DIR / 'gitlab.toml')
+
+    loadcfg = lambda cfp: toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
     gitcfg          = loadcfg('github.toml') if host == "GitHub" else loadcfg('gitlab.toml')
 
-    project_name    = input('What is your new project name? [app] : ') or "app"
-    alias           = input(f'What is your alias? [{gitcfg["alias"]}] : ') or gitcfg['alias']
-    license         = input('Choose a License [MIT or GPLv3]? [MIT] : ') or "MIT"
-    author          = input(f'What is your full name? [{gitcfg["name"]}] : ') or gitcfg['name']
-    username        = input(f'What is your Git username? [{gitcfg["username"]}] : ') or gitcfg['username']
-    email           = input(f'What is your Git email? [{gitcfg["email"]}] : ') or gitcfg['email']
-    desc            = input('Briefly describe your project [''] : ') or ''
-    cli             = input('Use a CLI library [Click, argparse]? [argparse] : ') or 'argparse'
+    project_name    = promptf('What is your new project name? [{}] : ', 'app')
+    alias           = promptf('What is your alias? [{}] : ', gitcfg['alias'])
+    license         = promptf('Choose a License [MIT or GPLv3]? [{}] : ', 'MIT')
+    author          = promptf('What is your full name? [{}] : ', gitcfg['name'])
+    username        = promptf('What is your Git username? [{}] : ', gitcfg['username'])
+    email           = promptf('What is your Git email? [{}] : ', gitcfg['email'])
+    desc            = promptf('Briefly describe your project [{}] : ', '')
+    cli             = promptf('Use a CLI library [Click, argparse]? [{}] : ', 'argparse')
 
     path = Path(project_name).resolve()
     if (not path.exists()): # If dest doesn't exist

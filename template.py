@@ -56,7 +56,7 @@ def bang(fp):
         'author': author
     }
     readmedict = {
-        'project_name_caps': project_name.upper(),
+        'project_name_caps': project_name.capitalize(),
         'desc': desc,
         'project_name': project_name,
         'pkgmgr': 'pip',

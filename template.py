@@ -34,15 +34,40 @@ def match(s, choices):
 
 def bang(fp):
     host            = input('Where will you host [GitHub or GitLab]? [GitHub] : ') or "GitHub"
+    gitfp = f'{BANG_CONFIG_DIR}/git.toml'
 
-    loadcfg = lambda cfp: toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
-    gitcfg          = loadcfg('github.toml') if host == "GitHub" else loadcfg('gitlab.toml')
+    hostcfg = {}
+    gitcfg = {}
+
+    if (Path(gitfp).exists()):
+        gitcfg = toml.loads(read_file(gitfp))["config"]
+    else:
+        gitcfg = {
+            'config': {
+                'name': '',
+                'email': ''
+            }
+        }
+
+    def loadcfg(cfp):
+        hostfp = f'{BANG_CONFIG_DIR}/{cfp}'
+        if (Path(hostfp).exists()):
+            return toml.loads(read_file(hostfp))["config"]
+        hostcfg = {
+            'config': {
+                'alias': '',
+                'username': ''
+            }
+        }
+        return hostcfg
+
+    hostcfg         = loadcfg('github.toml') if host == "GitHub" else loadcfg('gitlab.toml')
 
     project_name    = promptf('What is your new project name? [{}] : ', 'app')
-    alias           = promptf('What is your alias? [{}] : ', gitcfg['alias'])
+    alias           = promptf('What is your alias? [{}] : ', hostcfg['alias'])
     license         = promptf('Choose a License [MIT or GPLv3]? [{}] : ', 'MIT')
     author          = promptf('What is your full name? [{}] : ', gitcfg['name'])
-    username        = promptf('What is your Git username? [{}] : ', gitcfg['username'])
+    username        = promptf('What is your Git username? [{}] : ', hostcfg['username'])
     email           = promptf('What is your Git email? [{}] : ', gitcfg['email'])
     desc            = promptf('Briefly describe your project [{}] : ', '')
     cli             = promptf('Use a CLI library [Click, argparse]? [{}] : ', 'argparse')

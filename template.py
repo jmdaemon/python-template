@@ -3,6 +3,7 @@ import os
 from wora.file import read_file
 from pathlib import Path
 from jinja2 import Template
+from shutil import copyfile
 import datetime
 
 def mkdir(path, makedir=True):
@@ -84,3 +85,4 @@ def bang(fp):
     # Output all files
     for name, out in outputs.items():
         output(path, name, out)
+    copyfile(f'{fp}/.gitignore', f'{Path(path)}/.gitignore')

@@ -5,6 +5,9 @@ from pathlib import Path
 from jinja2 import Template
 from shutil import copyfile
 import datetime
+import toml
+
+BANG_CONFIG_DIR = Path('~/.config/bang/templates').expanduser()
 
 def mkdir(path, makedir=True):
     if makedir:
@@ -21,14 +24,25 @@ def output(dest, tmpl_name, tmpl):
     (plumbum.cmd.echo[tmpl] > dest)()
 
 def bang(fp):
-    project_name    = input('What is your new project name?         : ')
-    alias           = input('What is your alias?                    : ')
-    license         = input('Choose a License [MIT, GPLv3]          : ')
-    author          = input('What is your full name?                : ')
-    username        = input('What is your Git username?             : ')
-    email           = input('What is your Git email?                : ')
-    desc            = input('Briefly describe your project          : ')
-    cli             = input('Use a CLI library? [Click, argparse]   : ')
+    # cfg = Path("~/.config/bang/templates/python.toml")
+    host            = input('Where will you host [GitHub or GitLab]? [GitHub] : ') or "GitHub"
+    # loadcfg = lambda cfp : toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
+    def loadcfg(cfp):
+        # return toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
+        print(cfp)
+        print(BANG_CONFIG_DIR)
+        return toml.loads(read_file(f'{BANG_CONFIG_DIR}/{cfp}'))["config"]
+    # gitcfg          = Path(BANG_CONFIG_DIR / 'github.toml')[""] if host == "GitHub" else Path(BANG_CONFIG_DIR / 'gitlab.toml')
+    gitcfg          = loadcfg('github.toml') if host == "GitHub" else loadcfg('gitlab.toml')
+
+    project_name    = input('What is your new project name? [app] : ') or "app"
+    alias           = input(f'What is your alias? [{gitcfg["alias"]}] : ') or gitcfg['alias']
+    license         = input('Choose a License [MIT or GPLv3]? [MIT] : ') or "MIT"
+    author          = input(f'What is your full name? [{gitcfg["name"]}] : ') or gitcfg['name']
+    username        = input(f'What is your Git username? [{gitcfg["username"]}] : ') or gitcfg['username']
+    email           = input(f'What is your Git email? [{gitcfg["email"]}] : ') or gitcfg['email']
+    desc            = input('Briefly describe your project [''] : ') or ''
+    cli             = input('Use a CLI library [Click, argparse]? [argparse] : ') or 'argparse'
 
     path = Path(project_name).resolve()
     if (not path.exists()): # If dest doesn't exist

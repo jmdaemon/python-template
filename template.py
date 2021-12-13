@@ -26,6 +26,12 @@ def output(dest, tmpl_name, tmpl):
 def promptf(prompt: str, val=''):
     return input(prompt.format(val)) or val
 
+def match(s, choices):
+    for choice in choices:
+        if s == choice:
+            return True
+    return False
+
 def bang(fp):
     host            = input('Where will you host [GitHub or GitLab]? [GitHub] : ') or "GitHub"
 
@@ -45,9 +51,11 @@ def bang(fp):
     if (not path.exists()): # If dest doesn't exist
         project_name = mkdir(path)
     elif (len([path.iterdir()]) != 0): # If dest is not empty
-        overwrite = input((f'{path} is not empty. Overwrite? [y/n]: '))
-        if (overwrite.lower() == 'n' or overwrite.lower() == 'no'):
-            return 0
+        overwrite = ''
+        while (not match(overwrite.lower(), ['y', 'n', 'no', 'yes'])):
+            overwrite = input((f'{path} is not empty. Overwrite? [y/n]: '))
+            if (overwrite.lower() == 'n' or overwrite.lower() == 'no'):
+                return 0
         project_name = mkdir(path, makedir=False)
 
     # Ensure the templates render before outputting to dest

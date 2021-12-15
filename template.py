@@ -114,7 +114,7 @@ def bang(fp):
         outputs[name.removesuffix(".tmpl")] = (render(fp, name, vardict))
 
     # Make dest directories
-    Path(f'{path}/src{project_name}').mkdir(parents=True, exist_ok=True)
+    Path(f'{path}/src/{project_name}').mkdir(parents=True, exist_ok=True)
     Path(f'{path}/tests').mkdir(parents=True, exist_ok=True)
 
     # Init git repo

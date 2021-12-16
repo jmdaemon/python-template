@@ -1,27 +1,12 @@
-import plumbum
 import os
-from wora.file import read_file
+from wora.file import read_file, mkdir
+from bang.tmpl import render, output
 from pathlib import Path
-from jinja2 import Template
 from shutil import copyfile
 import datetime
 import toml
 
 BANG_CONFIG_DIR = Path('~/.config/bang/templates').expanduser()
-
-def mkdir(path, makedir=True):
-    if makedir:
-        os.mkdir(path)
-    return str(path.stem)
-
-def render(src, tmpl_name, vardict):
-    tmpl = Template(read_file(str(Path(src) / tmpl_name)))
-    res = tmpl.render(vardict)
-    return res
-
-def output(dest, tmpl_name, tmpl):
-    dest = str(dest / tmpl_name)
-    (plumbum.cmd.echo[tmpl] > dest)()
 
 def promptf(prompt: str, val=''):
     return input(prompt.format(val)) or val
@@ -68,14 +53,15 @@ def bang(fp):
 
     path = Path(project_name).resolve()
     if (not path.exists()): # If dest doesn't exist
-        project_name = mkdir(path)
+        mkdir(path)
+        project_name = path.stem
     elif (len([path.iterdir()]) != 0): # If dest is not empty
         overwrite = ''
         while (not match(overwrite.lower(), ['y', 'n', 'no', 'yes'])):
             overwrite = input((f'{path} is not empty. Overwrite? [y/n]: '))
             if (overwrite.lower() == 'n' or overwrite.lower() == 'no'):
                 return 0
-        project_name = mkdir(path, makedir=False)
+        project_name = path.stem
 
     # Ensure the templates render before outputting to dest
     setupdict = {
@@ -114,8 +100,8 @@ def bang(fp):
         outputs[name.removesuffix(".tmpl")] = (render(fp, name, vardict))
 
     # Make dest directories
-    Path(f'{path}/src/{project_name}').mkdir(parents=True, exist_ok=True)
-    Path(f'{path}/tests').mkdir(parents=True, exist_ok=True)
+    mkdir(f'{path}/src/{project_name}')
+    mkdir(f'{path}/tests')
 
     # Init git repo
     os.system(f'git init {path}')

@@ -1,12 +1,11 @@
-import os
-from wora.file import read_file, mkdir
+from wora.file import read_file, mkdir, to_path
 from bang.tmpl import render, output
-from pathlib import Path
 from shutil import copyfile
 import datetime
 import toml
+import os
 
-BANG_CONFIG_DIR = Path('~/.config/bang/templates').expanduser()
+BANG_CONFIG_DIR = to_path('~/.config/bang/templates').expanduser()
 
 def promptf(prompt: str, val=''):
     return input(prompt.format(val)) or val
@@ -35,7 +34,7 @@ def bang(fp):
 
     def loadcfg(cfp, cfg):
         hostfp = f'{BANG_CONFIG_DIR}/{cfp}'
-        if (Path(hostfp).exists()):
+        if (to_path(hostfp).exists()):
             return toml.loads(read_file(hostfp))["config"]
         return cfg
 
@@ -51,7 +50,7 @@ def bang(fp):
     desc            = promptf('Briefly describe your project [{}] : ', '')
     cli             = promptf('Use a CLI library [Click, argparse]? [{}] : ', 'argparse')
 
-    path = Path(project_name).resolve()
+    path = to_path(project_name).resolve()
     if (not path.exists()): # If dest doesn't exist
         mkdir(path)
         project_name = path.stem
@@ -109,4 +108,4 @@ def bang(fp):
     # Output all files
     for name, out in outputs.items():
         output(path, name, out)
-    copyfile(f'{fp}/.gitignore', f'{Path(path)}/.gitignore')
+    copyfile(f'{fp}/.gitignore', f'{to_path(path)}/.gitignore')

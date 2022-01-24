@@ -1,5 +1,5 @@
 from wora.file import mkdir
-from clopy.tmpl import render, output, promptf, loadcfg, to_path,match
+from clopy.tmpl import render, output, promptf, loadcfg, to_path, match, mkdest
 from shutil import copyfile
 import datetime
 import os
@@ -33,16 +33,8 @@ def bang(fp, cmd):
     cli             = promptf('Use a CLI library [Click, argparse]? [{}] : ', 'argparse')
 
     path = to_path(project_name).resolve()
-    if (not path.exists()): # If dest doesn't exist
-        mkdir(path)
-        project_name = path.stem
-    elif (len([path.iterdir()]) != 0): # If dest is not empty
-        overwrite = ''
-        while (not match(overwrite.lower(), ['y', 'n', 'no', 'yes'])):
-            overwrite = input((f'{path} is not empty. Overwrite? [y/n]: '))
-            if (overwrite.lower() == 'n' or overwrite.lower() == 'no'):
-                return 0
-        project_name = path.stem
+    mkdest(path)
+    project_name = path.name
 
     # Ensure the templates render before outputting to dest
     setupdict = {
@@ -76,9 +68,7 @@ def bang(fp, cmd):
     }
 
     # Initialize all templates
-    outputs = {}
-    for name, vardict in tmpls.items():
-        outputs[name.removesuffix(".tmpl")] = (render(fp, name, vardict))
+    init_all(tmpls)
 
     # Make dest directories
     mkdir(f'{path}/src/{project_name}')
@@ -90,4 +80,6 @@ def bang(fp, cmd):
     # Output all files
     for name, out in outputs.items():
         output(path, name, out)
+
+    # Copy .gitignore
     copyfile(f'{fp}/.gitignore', f'{to_path(path)}/.gitignore')

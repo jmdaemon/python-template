@@ -1,11 +1,8 @@
-from wora.file import mkdir
+from wora.file import mkdir, to_dict
 from clopy.tmpl import render, output, promptf, loadcfg, to_path, match, mkdest, init_all
 from shutil import copyfile
 import datetime
 import os
-
-def to_dict(**kwargs):
-    return kwargs
 
 def bang(fp, cmd):
     host            = promptf('Where will you host [GitHub or GitLab]? [{}] : ', 'GitHub')

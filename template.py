@@ -1,22 +1,10 @@
-from wora.file import read_file, mkdir, to_path
-from bang.tmpl import render, output
+from wora.file import mkdir
+from clopy.tmpl import render, output, promptf, loadcfg, to_path,match
 from shutil import copyfile
 import datetime
-import toml
 import os
 
-BANG_CONFIG_DIR = to_path('~/.config/bang/templates').expanduser()
-
-def promptf(prompt: str, val=''):
-    return input(prompt.format(val)) or val
-
-def match(s, choices):
-    for choice in choices:
-        if s == choice:
-            return True
-    return False
-
-def bang(fp):
+def bang(fp, cmd):
     host            = input('Where will you host [GitHub or GitLab]? [GitHub] : ') or "GitHub"
 
     hostcfg = {
@@ -31,12 +19,6 @@ def bang(fp):
             'email': ''
         }
     }
-
-    def loadcfg(cfp, cfg):
-        hostfp = f'{BANG_CONFIG_DIR}/{cfp}'
-        if (to_path(hostfp).exists()):
-            return toml.loads(read_file(hostfp))["config"]
-        return cfg
 
     hostcfg         = loadcfg('github.toml', hostcfg) if host == "GitHub" else loadcfg('gitlab.toml', hostcfg)
     gitcfg          = loadcfg('git.toml', gitcfg)
